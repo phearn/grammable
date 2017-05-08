@@ -6,4 +6,10 @@ FactoryGirl.define do |variable|
     password "secretPassword"
     password_confirmation "secretPassword"
   end
+
+  factory :gram do
+    message "hello"
+    association :user
+  end
+
 end
