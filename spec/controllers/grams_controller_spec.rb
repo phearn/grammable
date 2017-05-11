@@ -1,6 +1,21 @@
 require 'rails_helper'
 
 RSpec.describe GramsController, type: :controller do
+  describe "grams#destroy action" do
+    it "should allow a user to destroy grams" do
+      gram = FactoryGirl.create(:gram)
+      delete :destroy, params: { id: gram.id }
+      expect(response).to redirect_to root_path
+      gram = Gram.find_by_id(gram.id)
+      expect(gram).to eq nil
+    end
+
+    it "should return a 404 message if we cannot find a gram with the id that is specified" do
+      delete :destroy, params: { id: 'SPACEDUCK' }
+      expect(response).to have_http_status(:not_found)
+    end
+  end
+
   describe "gram#update action" do
     it "should allow users to successfully update grams" do
       gram = FactoryGirl.create(:gram, message: "Initial Value")
@@ -25,7 +40,7 @@ RSpec.describe GramsController, type: :controller do
   end
 
   describe "gram#edit action" do
-    it "should successfully show the edit form if the gram is found"do 
+    it "should successfully show the edit form if the gram is found" do 
       gram = FactoryGirl.create(:gram)
       get :edit, params: { id: gram.id }
       expect(response).to have_http_status(:success)
@@ -72,6 +87,11 @@ RSpec.describe GramsController, type: :controller do
   end
 
   describe "grams#create action" do
+    it "should require users to be logged in" do
+      post :create, params: { gram: { message: "Hello" } }
+      expect(response).to redirect_to new_user_session_path
+    end
+    
     it "should successfully create a new gram in our database" do
       user = FactoryGirl.create(:user)
       sign_in user 
@@ -94,6 +114,4 @@ RSpec.describe GramsController, type: :controller do
       expect(gram_count).to eq Gram.count
     end
   end
-
-
 end
